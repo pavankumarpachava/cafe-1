@@ -74,6 +74,10 @@ const Profile = () => {
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const onCropComplete = useCallback((croppedArea: any, croppedAreaPixels: any) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  }, []);
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
@@ -89,9 +93,6 @@ const Profile = () => {
     }
   };
 
-  const onCropComplete = useCallback((croppedArea: any, croppedAreaPixels: any) => {
-    setCroppedAreaPixels(croppedAreaPixels);
-  }, []);
 
   const handleSaveAvatar = async () => {
     if (imageSrc && croppedAreaPixels) {
