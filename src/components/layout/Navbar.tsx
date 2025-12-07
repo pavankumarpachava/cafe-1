@@ -63,8 +63,8 @@ export function Navbar() {
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 group">
               <Coffee className="w-8 h-8 text-gold transition-transform group-hover:rotate-12" />
-              <span className="font-display text-xl font-semibold text-foreground">
-                Coffee Store
+              <span className="font-display text-xl font-bold text-foreground tracking-tight">
+                CAFÉ <span className="text-gold">1%</span>
               </span>
             </Link>
 

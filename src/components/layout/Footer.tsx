@@ -12,7 +12,9 @@ export function Footer() {
           <div>
             <Link to="/" className="flex items-center gap-2 mb-4">
               <Coffee className="w-8 h-8 text-gold" />
-              <span className="font-display text-xl font-semibold">Coffee Store</span>
+              <span className="font-display text-xl font-bold tracking-tight">
+                CAFÉ <span className="text-gold">1%</span>
+              </span>
             </Link>
             <p className="text-primary-foreground/70 mb-6">
               Crafting moments of pure coffee bliss since 2020. Ethically sourced, expertly roasted.
@@ -83,7 +85,7 @@ export function Footer() {
         </div>
 
         <div className="border-t border-primary-foreground/20 mt-12 pt-8 text-center text-primary-foreground/50 text-sm">
-          <p>© 2024 Coffee Store. All rights reserved. Made with ☕ and love.</p>
+          <p>© 2024 Café 1%. All rights reserved. Made with ☕ and love.</p>
         </div>
       </div>
     </footer>
