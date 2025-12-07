@@ -1,71 +1,26 @@
 import { Product } from '@/types';
 
-// Import all product images
-import espressoImg from '@/assets/products/espresso.jpg';
-import doubleEspressoImg from '@/assets/products/double-espresso.jpg';
-import cappuccinoImg from '@/assets/products/cappuccino.jpg';
-import latteImg from '@/assets/products/latte.jpg';
-import flatWhiteImg from '@/assets/products/flat-white.jpg';
-import mochaImg from '@/assets/products/mocha.jpg';
-import americanoImg from '@/assets/products/americano.jpg';
-import coldBrewImg from '@/assets/products/cold-brew.jpg';
-import icedLatteImg from '@/assets/products/iced-latte.jpg';
-import icedMochaImg from '@/assets/products/iced-mocha.jpg';
-import frappuccinoImg from '@/assets/products/frappuccino.jpg';
-import affogatoImg from '@/assets/products/affogato.jpg';
-import gingerbreadLatteImg from '@/assets/products/gingerbread-latte.jpg';
-import peppermintMochaImg from '@/assets/products/peppermint-mocha.jpg';
-import eggnogLatteImg from '@/assets/products/eggnog-latte.jpg';
-import hotChocolateImg from '@/assets/products/hot-chocolate.jpg';
-import chaiLatteImg from '@/assets/products/chai-latte.jpg';
-import matchaLatteImg from '@/assets/products/matcha-latte.jpg';
-import caramelMacchiatoImg from '@/assets/products/caramel-macchiato.jpg';
-import vanillaLatteImg from '@/assets/products/vanilla-latte.jpg';
-
-const productImages: Record<string, string> = {
-  'Espresso': espressoImg,
-  'Double Espresso': doubleEspressoImg,
-  'Cappuccino': cappuccinoImg,
-  'Latte': latteImg,
-  'Flat White': flatWhiteImg,
-  'Mocha': mochaImg,
-  'Americano': americanoImg,
-  'Cold Brew': coldBrewImg,
-  'Iced Latte': icedLatteImg,
-  'Iced Mocha': icedMochaImg,
-  'Frappuccino': frappuccinoImg,
-  'Affogato': affogatoImg,
-  'Gingerbread Latte': gingerbreadLatteImg,
-  'Peppermint Mocha': peppermintMochaImg,
-  'Eggnog Latte': eggnogLatteImg,
-  'Hot Chocolate': hotChocolateImg,
-  'Chai Latte': chaiLatteImg,
-  'Matcha Latte': matchaLatteImg,
-  'Caramel Macchiato': caramelMacchiatoImg,
-  'Vanilla Latte': vanillaLatteImg,
-};
-
 const coffeeData = [
-  { id: 1, name: "Espresso", category: "Espresso" },
-  { id: 2, name: "Double Espresso", category: "Espresso" },
-  { id: 3, name: "Cappuccino", category: "Espresso" },
-  { id: 4, name: "Latte", category: "Espresso" },
-  { id: 5, name: "Flat White", category: "Espresso" },
-  { id: 6, name: "Mocha", category: "Specialty" },
-  { id: 7, name: "Americano", category: "Espresso" },
-  { id: 8, name: "Cold Brew", category: "Iced" },
-  { id: 9, name: "Iced Latte", category: "Iced" },
-  { id: 10, name: "Iced Mocha", category: "Iced" },
-  { id: 11, name: "Frappuccino", category: "Iced" },
-  { id: 12, name: "Affogato", category: "Specialty" },
-  { id: 13, name: "Gingerbread Latte", category: "Christmas" },
-  { id: 14, name: "Peppermint Mocha", category: "Christmas" },
-  { id: 15, name: "Eggnog Latte", category: "Christmas" },
-  { id: 16, name: "Hot Chocolate", category: "Specialty" },
-  { id: 17, name: "Chai Latte", category: "Specialty" },
-  { id: 18, name: "Matcha Latte", category: "Specialty" },
-  { id: 19, name: "Caramel Macchiato", category: "Specialty" },
-  { id: 20, name: "Vanilla Latte", category: "Specialty" },
+  { id: 1, name: "Espresso", category: "Espresso", slug: "espresso" },
+  { id: 2, name: "Double Espresso", category: "Espresso", slug: "double-espresso" },
+  { id: 3, name: "Cappuccino", category: "Espresso", slug: "cappuccino" },
+  { id: 4, name: "Latte", category: "Espresso", slug: "latte" },
+  { id: 5, name: "Flat White", category: "Espresso", slug: "flat-white" },
+  { id: 6, name: "Mocha", category: "Specialty", slug: "mocha" },
+  { id: 7, name: "Americano", category: "Espresso", slug: "americano" },
+  { id: 8, name: "Cold Brew", category: "Iced", slug: "cold-brew" },
+  { id: 9, name: "Iced Latte", category: "Iced", slug: "iced-latte" },
+  { id: 10, name: "Iced Mocha", category: "Iced", slug: "iced-mocha" },
+  { id: 11, name: "Frappuccino", category: "Iced", slug: "frappuccino" },
+  { id: 12, name: "Affogato", category: "Specialty", slug: "affogato" },
+  { id: 13, name: "Gingerbread Latte", category: "Christmas", slug: "gingerbread-latte" },
+  { id: 14, name: "Peppermint Mocha", category: "Christmas", slug: "peppermint-mocha" },
+  { id: 15, name: "Eggnog Latte", category: "Christmas", slug: "eggnog-latte" },
+  { id: 16, name: "Hot Chocolate", category: "Specialty", slug: "hot-chocolate" },
+  { id: 17, name: "Chai Latte", category: "Specialty", slug: "chai-latte" },
+  { id: 18, name: "Matcha Latte", category: "Specialty", slug: "matcha-latte" },
+  { id: 19, name: "Caramel Macchiato", category: "Specialty", slug: "caramel-macchiato" },
+  { id: 20, name: "Vanilla Latte", category: "Specialty", slug: "vanilla-latte" },
 ];
 
 const descriptions: Record<string, string> = {
@@ -102,17 +57,32 @@ const tastingNotes: Record<string, string[]> = {
   'Eggnog Latte': ['Creamy', 'Spiced', 'Rich'],
 };
 
-export const products: Product[] = coffeeData.map((item) => ({
-  id: item.id,
-  name: item.name,
-  category: item.category,
-  main_image: productImages[item.name] || espressoImg,
-  images: [productImages[item.name] || espressoImg],
-  price: 4.50 + (item.id % 5) * 0.75,
-  description: descriptions[item.name] || `Premium ${item.name} crafted with care and expertise.`,
-  tastingNotes: tastingNotes[item.name] || ['Aromatic', 'Balanced'],
-  ingredients: ['Premium Coffee Beans', 'Filtered Water', 'Fresh Milk']
-}));
+// Helper to get random image variant for grid views
+export const getRandomImage = (images: string[]) => {
+  return images[Math.floor(Math.random() * images.length)];
+};
+
+export const products: Product[] = coffeeData.map((item) => {
+  const basePath = `/src/assets/products/${item.slug}`;
+  const images = [
+    `${basePath}/1-christmas.jpg`,
+    `${basePath}/2.jpg`,
+    `${basePath}/3.jpg`,
+    `${basePath}/4.jpg`,
+  ];
+  
+  return {
+    id: item.id,
+    name: item.name,
+    category: item.category,
+    main_image: images[0],
+    images,
+    price: 4.50 + (item.id % 5) * 0.75,
+    description: descriptions[item.name] || `Premium ${item.name} crafted with care and expertise.`,
+    tastingNotes: tastingNotes[item.name] || ['Aromatic', 'Balanced'],
+    ingredients: ['Premium Coffee Beans', 'Filtered Water', 'Fresh Milk']
+  };
+});
 
 export const christmasProducts = products.filter(p => p.category === 'Christmas');
 
