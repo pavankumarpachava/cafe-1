@@ -15,6 +15,7 @@ import Checkout from "./pages/Checkout";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Favorites from "./pages/Favorites";
+import OrderTracking from "./pages/OrderTracking";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ function AnimatedRoutes() {
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/favorites" element={<Favorites />} />
+        <Route path="/order/:orderId" element={<OrderTracking />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
