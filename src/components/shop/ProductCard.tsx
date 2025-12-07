@@ -70,11 +70,18 @@ export function ProductCard({ product, featured }: ProductCardProps) {
     <Link to={`/product/${product.id}`}>
       <motion.div
         whileHover={{ y: -8 }}
-        className={`group bg-card rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 ${
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+        className={`group bg-card rounded-2xl overflow-hidden transition-all duration-500 ${
           featured ? 'border-2 border-gold/20' : ''
         }`}
+        style={{
+          boxShadow: '0 10px 40px -10px rgba(0, 0, 0, 0.2)',
+        }}
+        whileTap={{ scale: 0.98 }}
       >
-        <div 
+        <motion.div 
           className="relative aspect-square overflow-hidden"
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => {
@@ -82,16 +89,40 @@ export function ProductCard({ product, featured }: ProductCardProps) {
             setCurrentImageIndex(0);
           }}
           onMouseMove={handleMouseMove}
+          whileHover={{
+            boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.35), 0 0 40px rgba(212, 175, 55, 0.1)',
+          }}
         >
+          {/* Cinematic gradient overlay */}
+          <motion.div 
+            className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent z-[1] pointer-events-none"
+            animate={{ opacity: isHovering ? 0.5 : 0.2 }}
+            transition={{ duration: 0.4 }}
+          />
+          
           <motion.img
             key={displayImage}
             src={displayImage}
             alt={product.name}
             loading="lazy"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.2 }}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            initial={{ opacity: 0, scale: 1.15 }}
+            animate={{ 
+              opacity: 1, 
+              scale: isHovering ? 1.12 : 1,
+            }}
+            transition={{ 
+              opacity: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] },
+              scale: { duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }
+            }}
+            className="w-full h-full object-cover"
+          />
+          
+          {/* Shimmer effect */}
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent pointer-events-none z-[2]"
+            initial={{ x: "-100%" }}
+            animate={{ x: isHovering ? "200%" : "-100%" }}
+            transition={{ duration: 0.8, ease: "easeInOut" }}
           />
           
           {/* Image indicator dots */}
@@ -147,7 +178,7 @@ export function ProductCard({ product, featured }: ProductCardProps) {
               {product.category}
             </span>
           </div>
-        </div>
+        </motion.div>
 
         <div className="p-5">
           <h3 className="font-semibold text-lg mb-1 group-hover:text-gold transition-colors">
