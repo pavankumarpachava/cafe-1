@@ -63,7 +63,7 @@ export const getRandomImage = (images: string[]) => {
 };
 
 export const products: Product[] = coffeeData.map((item) => {
-  const basePath = `/src/assets/products/${item.slug}`;
+  const basePath = `/images/products/${item.slug}`;
   const images = [
     `${basePath}/1-christmas.jpg`,
     `${basePath}/2.jpg`,

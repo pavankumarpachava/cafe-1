@@ -16,6 +16,11 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Favorites from "./pages/Favorites";
 import OrderTracking from "./pages/OrderTracking";
+import Rewards from "./pages/Rewards";
+import FAQ from "./pages/FAQ";
+import Shipping from "./pages/Shipping";
+import Returns from "./pages/Returns";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,6 +42,11 @@ function AnimatedRoutes() {
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/favorites" element={<Favorites />} />
+        <Route path="/rewards" element={<Rewards />} />
+        <Route path="/faq" element={<FAQ />} />
+        <Route path="/shipping" element={<Shipping />} />
+        <Route path="/returns" element={<Returns />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/order/:orderId" element={<OrderTracking />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
