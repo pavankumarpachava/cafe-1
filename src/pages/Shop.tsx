@@ -1,11 +1,12 @@
 import { useState, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Filter, Grid, List } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { ProductCard } from '@/components/shop/ProductCard';
 import { products, categories } from '@/data/products';
+import { useStore } from '@/context/StoreContext';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -14,10 +15,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { PageTransition } from '@/components/layout/PageTransition';
 
 const Shop = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [sortBy, setSortBy] = useState('popular');
+  const { wishlist } = useStore();
   
   const selectedCategory = searchParams.get('category') || 'all';
 
@@ -56,84 +59,101 @@ const Shop = () => {
   };
 
   return (
-    <div className="min-h-screen">
-      <Navbar />
-      <main className="pt-8 pb-24">
-        <div className="container mx-auto px-4">
-          {/* Header */}
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            className="text-center mb-12"
-          >
-            <h1 className="text-4xl md:text-5xl font-display font-bold mb-4">
-              {selectedCategory === 'all' ? 'Our Menu' : selectedCategory}
-            </h1>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Discover your perfect cup from our carefully curated selection.
-            </p>
-          </motion.div>
+    <PageTransition>
+      <div className="min-h-screen">
+        <Navbar />
+        <main className="pt-8 pb-24">
+          <div className="container mx-auto px-4">
+            {/* Header */}
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              className="text-center mb-12"
+            >
+              <h1 className="text-4xl md:text-5xl font-display font-bold mb-4">
+                {selectedCategory === 'all' ? 'Our Menu' : selectedCategory}
+              </h1>
+              <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+                Discover your perfect cup from our carefully curated selection.
+              </p>
+            </motion.div>
 
-          {/* Filters */}
-          <div className="flex flex-wrap gap-4 mb-8 items-center justify-between">
-            <div className="flex flex-wrap gap-2">
-              <Button
-                variant={selectedCategory === 'all' ? 'default' : 'outline'}
-                onClick={() => handleCategoryChange('all')}
-                className={selectedCategory === 'all' ? 'btn-gold' : ''}
-              >
-                All
-              </Button>
-              {categories.map((category) => (
+            {/* Filters */}
+            <div className="flex flex-wrap gap-4 mb-8 items-center justify-between">
+              <div className="flex flex-wrap gap-2">
                 <Button
-                  key={category}
-                  variant={selectedCategory === category ? 'default' : 'outline'}
-                  onClick={() => handleCategoryChange(category)}
-                  className={selectedCategory === category ? 'btn-gold' : ''}
+                  variant={selectedCategory === 'all' ? 'default' : 'outline'}
+                  onClick={() => handleCategoryChange('all')}
+                  className={selectedCategory === 'all' ? 'btn-gold' : ''}
                 >
-                  {category}
+                  All
                 </Button>
+                {categories.map((category) => (
+                  <Button
+                    key={category}
+                    variant={selectedCategory === category ? 'default' : 'outline'}
+                    onClick={() => handleCategoryChange(category)}
+                    className={selectedCategory === category ? 'btn-gold' : ''}
+                  >
+                    {category}
+                  </Button>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-3">
+                {/* Favorites link */}
+                <Link to="/favorites">
+                  <Button variant="outline" className="relative">
+                    <Heart className="w-4 h-4 mr-2" />
+                    Favorites
+                    {wishlist.length > 0 && (
+                      <span className="absolute -top-2 -right-2 w-5 h-5 bg-christmas text-christmas-foreground text-xs rounded-full flex items-center justify-center">
+                        {wishlist.length}
+                      </span>
+                    )}
+                  </Button>
+                </Link>
+
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="w-44">
+                    <SelectValue placeholder="Sort by" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="popular">Most Popular</SelectItem>
+                    <SelectItem value="price-low">Price: Low to High</SelectItem>
+                    <SelectItem value="price-high">Price: High to Low</SelectItem>
+                    <SelectItem value="name">Name A-Z</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Products Grid */}
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredProducts.map((product, index) => (
+                <motion.div
+                  key={product.id}
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: index * 0.05 }}
+                >
+                  <ProductCard product={product} />
+                </motion.div>
               ))}
             </div>
 
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-44">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="popular">Most Popular</SelectItem>
-                <SelectItem value="price-low">Price: Low to High</SelectItem>
-                <SelectItem value="price-high">Price: High to Low</SelectItem>
-                <SelectItem value="name">Name A-Z</SelectItem>
-              </SelectContent>
-            </Select>
+            {filteredProducts.length === 0 && (
+              <div className="text-center py-16">
+                <p className="text-muted-foreground text-lg">
+                  No products found in this category.
+                </p>
+              </div>
+            )}
           </div>
-
-          {/* Products Grid */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredProducts.map((product, index) => (
-              <motion.div
-                key={product.id}
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: index * 0.05 }}
-              >
-                <ProductCard product={product} />
-              </motion.div>
-            ))}
-          </div>
-
-          {filteredProducts.length === 0 && (
-            <div className="text-center py-16">
-              <p className="text-muted-foreground text-lg">
-                No products found in this category.
-              </p>
-            </div>
-          )}
-        </div>
-      </main>
-      <Footer />
-    </div>
+        </main>
+        <Footer />
+      </div>
+    </PageTransition>
   );
 };
 

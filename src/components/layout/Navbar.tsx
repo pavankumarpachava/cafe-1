@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Search, ShoppingBag, User, Menu, X, Moon, Sun, Coffee } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Search, ShoppingBag, User, Menu, Moon, Sun, Coffee, Heart } from 'lucide-react';
 import { useStore } from '@/context/StoreContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,7 +13,7 @@ const navLinks = [
   { name: 'Home', path: '/' },
   { name: 'Shop', path: '/shop' },
   { name: 'Seasonal', path: '/shop?category=Christmas' },
-  { name: 'Rewards', path: '/profile/rewards' },
+  { name: 'Favorites', path: '/favorites' },
   { name: 'About', path: '/about' },
   { name: 'Contact', path: '/contact' },
 ];
@@ -23,7 +23,7 @@ export function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { cartCount, isDark, toggleTheme, isAuthenticated, unreadCount } = useStore();
+  const { cartCount, isDark, toggleTheme, isAuthenticated, unreadCount, wishlist } = useStore();
   const location = useLocation();
 
   useEffect(() => {
@@ -74,13 +74,18 @@ export function Navbar() {
                 <Link
                   key={link.path}
                   to={link.path}
-                  className={`text-sm font-medium transition-colors hover:text-gold ${
+                  className={`text-sm font-medium transition-colors hover:text-gold relative ${
                     location.pathname === link.path
                       ? 'text-gold'
                       : 'text-foreground/80'
                   }`}
                 >
                   {link.name}
+                  {link.name === 'Favorites' && wishlist.length > 0 && (
+                    <Badge className="absolute -top-2 -right-4 h-4 w-4 p-0 flex items-center justify-center bg-christmas text-christmas-foreground text-xs">
+                      {wishlist.length}
+                    </Badge>
+                  )}
                 </Link>
               ))}
             </div>
@@ -103,6 +108,17 @@ export function Navbar() {
               >
                 <Search className="w-5 h-5" />
               </Button>
+
+              <Link to="/favorites" className="hidden sm:block">
+                <Button variant="ghost" size="icon" className="relative">
+                  <Heart className="w-5 h-5" />
+                  {wishlist.length > 0 && (
+                    <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center bg-christmas text-christmas-foreground text-xs">
+                      {wishlist.length}
+                    </Badge>
+                  )}
+                </Button>
+              </Link>
 
               <Button
                 variant="ghost"

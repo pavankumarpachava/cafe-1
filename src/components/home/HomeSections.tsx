@@ -1,7 +1,7 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Gift, Leaf, Award, Coffee } from 'lucide-react';
+import { ArrowRight, Gift, Leaf, Award, Coffee, Play } from 'lucide-react';
 import heroImage from '@/assets/hero-christmas-coffee.jpg';
 import { Button } from '@/components/ui/button';
 import { ProductCard } from '@/components/shop/ProductCard';
@@ -39,6 +39,7 @@ export function HeroSection() {
   const y = useTransform(scrollYProgress, [0, 1], [0, 200]);
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.5], [1, 1.1]);
+  const textY = useTransform(scrollYProgress, [0, 1], [0, 100]);
 
   const snowflakes = Array.from({ length: 30 }, (_, i) => ({
     delay: i * 0.3,
@@ -68,9 +69,9 @@ export function HeroSection() {
         ))}
       </div>
 
-      {/* Content */}
+      {/* Content with parallax */}
       <motion.div
-        style={{ opacity }}
+        style={{ opacity, y: textY }}
         className="relative h-full flex items-center"
       >
         <div className="container mx-auto px-4">
@@ -139,12 +140,129 @@ export function HeroSection() {
   );
 }
 
+export function VideoSection() {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start end', 'end start'],
+  });
+
+  const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
+  const opacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, 1, 1, 0]);
+
+  return (
+    <section ref={ref} className="py-24 relative overflow-hidden">
+      <motion.div style={{ opacity }} className="container mx-auto px-4">
+        <motion.div
+          initial={{ y: 30, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          viewport={{ once: true }}
+          className="text-center mb-12"
+        >
+          <span className="inline-block px-4 py-2 mb-4 text-sm font-medium bg-gold/20 text-gold rounded-full">
+            🎬 Behind the Scenes
+          </span>
+          <h2 className="text-4xl md:text-5xl font-display font-bold mb-4">
+            The Art of Craft
+          </h2>
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            Watch how our master baristas create the perfect cup, every time.
+          </p>
+        </motion.div>
+
+        <motion.div 
+          style={{ y }}
+          className="relative max-w-4xl mx-auto rounded-3xl overflow-hidden shadow-2xl group"
+        >
+          {/* Video placeholder with parallax effect */}
+          <div className="relative aspect-video bg-gradient-to-br from-espresso to-primary">
+            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
+            
+            {/* Coffee steam animation */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <motion.div
+                animate={{
+                  y: [0, -20, 0],
+                  opacity: [0.3, 0.6, 0.3],
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: 'easeInOut',
+                }}
+                className="w-32 h-32 bg-card/10 rounded-full blur-2xl"
+              />
+            </div>
+
+            {/* Play button */}
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              className="absolute inset-0 flex items-center justify-center"
+            >
+              <div className="w-24 h-24 rounded-full bg-gold/90 backdrop-blur-sm flex items-center justify-center shadow-lg group-hover:bg-gold transition-colors">
+                <Play className="w-10 h-10 text-primary-foreground ml-1" fill="currentColor" />
+              </div>
+            </motion.button>
+
+            {/* Decorative text */}
+            <div className="absolute bottom-8 left-8 text-card">
+              <p className="text-sm font-medium opacity-70">Watch Now</p>
+              <p className="text-2xl font-display font-bold">Crafting Excellence</p>
+            </div>
+          </div>
+
+          {/* Floating elements with parallax */}
+          <motion.div
+            animate={{
+              y: [0, -10, 0],
+              rotate: [0, 5, 0],
+            }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+            className="absolute -top-6 -right-6 w-24 h-24 bg-christmas/20 rounded-full blur-xl"
+          />
+          <motion.div
+            animate={{
+              y: [0, 10, 0],
+              rotate: [0, -5, 0],
+            }}
+            transition={{
+              duration: 5,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+            className="absolute -bottom-6 -left-6 w-32 h-32 bg-gold/20 rounded-full blur-xl"
+          />
+        </motion.div>
+      </motion.div>
+    </section>
+  );
+}
+
 export function FeaturedSection() {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start end', 'end start'],
+  });
+
+  const y = useTransform(scrollYProgress, [0, 1], [50, -50]);
+
   const featured = products.slice(0, 4);
 
   return (
-    <section className="py-24 bg-secondary">
-      <div className="container mx-auto px-4">
+    <section ref={ref} className="py-24 bg-secondary relative overflow-hidden">
+      {/* Parallax background elements */}
+      <motion.div
+        style={{ y }}
+        className="absolute top-0 right-0 w-96 h-96 bg-gold/5 rounded-full blur-3xl"
+      />
+
+      <div className="container mx-auto px-4 relative">
         <motion.div
           initial={{ y: 30, opacity: 0 }}
           whileInView={{ y: 0, opacity: 1 }}
@@ -187,11 +305,26 @@ export function FeaturedSection() {
 }
 
 export function ChristmasSection() {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start end', 'end start'],
+  });
+
+  const decorY = useTransform(scrollYProgress, [0, 1], [100, -100]);
+  const decorY2 = useTransform(scrollYProgress, [0, 1], [-50, 50]);
+
   return (
-    <section className="py-24 bg-christmas/5 relative overflow-hidden">
-      {/* Decorative elements */}
-      <div className="absolute top-0 left-0 w-64 h-64 bg-christmas/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-gold/10 rounded-full blur-3xl" />
+    <section ref={ref} className="py-24 bg-christmas/5 relative overflow-hidden">
+      {/* Parallax decorative elements */}
+      <motion.div
+        style={{ y: decorY }}
+        className="absolute top-0 left-0 w-64 h-64 bg-christmas/10 rounded-full blur-3xl"
+      />
+      <motion.div
+        style={{ y: decorY2 }}
+        className="absolute bottom-0 right-0 w-96 h-96 bg-gold/10 rounded-full blur-3xl"
+      />
 
       <div className="container mx-auto px-4 relative">
         <motion.div
@@ -230,11 +363,23 @@ export function ChristmasSection() {
 }
 
 export function RewardsTeaser() {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start end', 'end start'],
+  });
+
+  const x = useTransform(scrollYProgress, [0, 1], [-50, 50]);
+  const x2 = useTransform(scrollYProgress, [0, 1], [50, -50]);
+
   return (
-    <section className="py-24">
+    <section ref={ref} className="py-24">
       <div className="container mx-auto px-4">
         <div className="glass rounded-3xl p-8 md:p-16 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-gold/20 rounded-full blur-3xl" />
+          <motion.div
+            style={{ x }}
+            className="absolute top-0 right-0 w-96 h-96 bg-gold/20 rounded-full blur-3xl"
+          />
           
           <div className="relative grid md:grid-cols-2 gap-12 items-center">
             <motion.div
@@ -262,6 +407,7 @@ export function RewardsTeaser() {
               initial={{ x: 30, opacity: 0 }}
               whileInView={{ x: 0, opacity: 1 }}
               viewport={{ once: true }}
+              style={{ x: x2 }}
               className="grid grid-cols-2 gap-4"
             >
               {[
@@ -270,13 +416,14 @@ export function RewardsTeaser() {
                 { value: '2x', label: 'This week' },
                 { value: 'Free', label: 'To join' },
               ].map((stat, i) => (
-                <div
+                <motion.div
                   key={i}
+                  whileHover={{ scale: 1.05, y: -5 }}
                   className="bg-card p-6 rounded-xl text-center shadow-lg"
                 >
                   <div className="text-3xl font-bold text-gold mb-1">{stat.value}</div>
                   <div className="text-sm text-muted-foreground">{stat.label}</div>
-                </div>
+                </motion.div>
               ))}
             </motion.div>
           </div>
@@ -287,6 +434,14 @@ export function RewardsTeaser() {
 }
 
 export function WhyUsSection() {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start end', 'end start'],
+  });
+
+  const y = useTransform(scrollYProgress, [0, 1], [50, -50]);
+
   const features = [
     {
       icon: Coffee,
@@ -311,8 +466,13 @@ export function WhyUsSection() {
   ];
 
   return (
-    <section className="py-24 bg-primary text-primary-foreground">
-      <div className="container mx-auto px-4">
+    <section ref={ref} className="py-24 bg-primary text-primary-foreground relative overflow-hidden">
+      <motion.div
+        style={{ y }}
+        className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-50"
+      />
+
+      <div className="container mx-auto px-4 relative">
         <motion.div
           initial={{ y: 30, opacity: 0 }}
           whileInView={{ y: 0, opacity: 1 }}
@@ -335,11 +495,15 @@ export function WhyUsSection() {
               whileInView={{ y: 0, opacity: 1 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
+              whileHover={{ y: -10 }}
               className="text-center group"
             >
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gold/20 flex items-center justify-center group-hover:bg-gold/30 transition-colors">
+              <motion.div
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                className="w-16 h-16 mx-auto mb-4 rounded-full bg-gold/20 flex items-center justify-center group-hover:bg-gold/30 transition-colors"
+              >
                 <feature.icon className="w-8 h-8 text-gold" />
-              </div>
+              </motion.div>
               <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
               <p className="text-primary-foreground/70">{feature.description}</p>
             </motion.div>

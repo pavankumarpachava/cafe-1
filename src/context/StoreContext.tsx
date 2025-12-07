@@ -11,6 +11,13 @@ interface StoreContextType {
   cartTotal: number;
   cartCount: number;
 
+  // Wishlist/Favorites
+  wishlist: Product[];
+  addToWishlist: (product: Product) => void;
+  removeFromWishlist: (productId: number) => void;
+  isInWishlist: (productId: number) => boolean;
+  toggleWishlist: (product: Product) => void;
+
   // User & Auth
   user: User | null;
   isAuthenticated: boolean;
@@ -46,6 +53,11 @@ const StoreContext = createContext<StoreContextType | undefined>(undefined);
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>(() => {
     const saved = localStorage.getItem('coffee-cart');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [wishlist, setWishlist] = useState<Product[]>(() => {
+    const saved = localStorage.getItem('coffee-wishlist');
     return saved ? JSON.parse(saved) : [];
   });
 
@@ -92,6 +104,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, [cart]);
 
   useEffect(() => {
+    localStorage.setItem('coffee-wishlist', JSON.stringify(wishlist));
+  }, [wishlist]);
+
+  useEffect(() => {
     if (user) {
       localStorage.setItem('coffee-user', JSON.stringify(user));
     } else {
@@ -134,9 +150,32 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
+  // Wishlist functions
+  const addToWishlist = (product: Product) => {
+    setWishlist(prev => {
+      if (prev.find(p => p.id === product.id)) return prev;
+      return [...prev, product];
+    });
+  };
+
+  const removeFromWishlist = (productId: number) => {
+    setWishlist(prev => prev.filter(p => p.id !== productId));
+  };
+
+  const isInWishlist = (productId: number) => {
+    return wishlist.some(p => p.id === productId);
+  };
+
+  const toggleWishlist = (product: Product) => {
+    if (isInWishlist(product.id)) {
+      removeFromWishlist(product.id);
+    } else {
+      addToWishlist(product);
+    }
+  };
+
   // Auth functions
   const login = async (email: string, password: string): Promise<boolean> => {
-    // Mock login
     await new Promise(resolve => setTimeout(resolve, 500));
     const existingUser = localStorage.getItem('coffee-user-data-' + email);
     if (existingUser) {
@@ -144,7 +183,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setUser(userData);
       return true;
     }
-    // Create new user on login if not exists
     const newUser: User = {
       id: crypto.randomUUID(),
       name: email.split('@')[0],
@@ -301,6 +339,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       clearCart,
       cartTotal,
       cartCount,
+      wishlist,
+      addToWishlist,
+      removeFromWishlist,
+      isInWishlist,
+      toggleWishlist,
       user,
       isAuthenticated: !!user,
       login,

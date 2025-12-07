@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, Trash2, CreditCard, Award, CheckCircle } from 'lucide-react';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
+import { PageTransition } from '@/components/layout/PageTransition';
 import { useStore } from '@/context/StoreContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,22 +33,25 @@ const Checkout = () => {
 
   if (cart.length === 0 && !orderPlaced) {
     return (
-      <div className="min-h-screen">
-        <Navbar />
-        <div className="container mx-auto px-4 py-24 text-center">
-          <h1 className="text-2xl font-semibold mb-4">Your cart is empty</h1>
-          <Link to="/shop">
-            <Button className="btn-gold">Continue Shopping</Button>
-          </Link>
+      <PageTransition>
+        <div className="min-h-screen">
+          <Navbar />
+          <div className="container mx-auto px-4 py-24 text-center">
+            <h1 className="text-2xl font-semibold mb-4">Your cart is empty</h1>
+            <Link to="/shop">
+              <Button className="btn-gold">Continue Shopping</Button>
+            </Link>
+          </div>
+          <Footer />
         </div>
-        <Footer />
-      </div>
+      </PageTransition>
     );
   }
 
   if (orderPlaced && orderDetails) {
     return (
-      <div className="min-h-screen">
+      <PageTransition>
+        <div className="min-h-screen">
         <Navbar />
         <div className="container mx-auto px-4 py-24">
           <motion.div
@@ -91,11 +95,13 @@ const Checkout = () => {
         </div>
         <Footer />
       </div>
+      </PageTransition>
     );
   }
 
   return (
-    <div className="min-h-screen">
+    <PageTransition>
+      <div className="min-h-screen">
       <Navbar />
       <main className="py-8">
         <div className="container mx-auto px-4">
@@ -272,6 +278,7 @@ const Checkout = () => {
       </main>
       <Footer />
     </div>
+    </PageTransition>
   );
 };
 
