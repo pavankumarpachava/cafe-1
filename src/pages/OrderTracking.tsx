@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
@@ -9,7 +9,9 @@ import {
   Clock, 
   MapPin,
   ArrowLeft,
-  RefreshCw
+  RefreshCw,
+  Store,
+  Car
 } from 'lucide-react';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
@@ -18,6 +20,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useStore } from '@/context/StoreContext';
+import { FulfillmentMethod } from '@/types';
 
 type OrderStatus = 'confirmed' | 'preparing' | 'ready' | 'out_for_delivery' | 'delivered';
 
@@ -29,40 +32,65 @@ interface TrackingStep {
   time?: string;
 }
 
-const trackingSteps: TrackingStep[] = [
-  { 
-    status: 'confirmed', 
-    label: 'Order Confirmed', 
-    description: 'We\'ve received your order',
-    icon: CheckCircle2 
-  },
-  { 
-    status: 'preparing', 
-    label: 'Preparing', 
-    description: 'Your coffee is being crafted',
-    icon: Coffee 
-  },
-  { 
-    status: 'ready', 
-    label: 'Ready', 
-    description: 'Your order is ready for pickup/delivery',
-    icon: Package 
-  },
-  { 
-    status: 'out_for_delivery', 
-    label: 'Out for Delivery', 
-    description: 'On the way to you',
-    icon: Truck 
-  },
-  { 
-    status: 'delivered', 
-    label: 'Delivered', 
-    description: 'Enjoy your coffee!',
-    icon: CheckCircle2 
-  },
-];
+const getTrackingSteps = (fulfillmentMethod: FulfillmentMethod): TrackingStep[] => {
+  const baseSteps: TrackingStep[] = [
+    { 
+      status: 'confirmed', 
+      label: 'Order Confirmed', 
+      description: 'We\'ve received your order',
+      icon: CheckCircle2 
+    },
+    { 
+      status: 'preparing', 
+      label: 'Preparing', 
+      description: 'Your coffee is being crafted',
+      icon: Coffee 
+    },
+    { 
+      status: 'ready', 
+      label: 'Ready', 
+      description: fulfillmentMethod === 'pickup' 
+        ? 'Your order is ready for in-store pickup' 
+        : fulfillmentMethod === 'drivethru' 
+          ? 'Your order is ready at the drive-thru'
+          : 'Your order is ready for delivery',
+      icon: Package 
+    },
+  ];
 
-const statusOrder: OrderStatus[] = ['confirmed', 'preparing', 'ready', 'out_for_delivery', 'delivered'];
+  if (fulfillmentMethod === 'delivery') {
+    baseSteps.push(
+      { 
+        status: 'out_for_delivery', 
+        label: 'Out for Delivery', 
+        description: 'On the way to you',
+        icon: Truck 
+      },
+      { 
+        status: 'delivered', 
+        label: 'Delivered', 
+        description: 'Enjoy your coffee!',
+        icon: CheckCircle2 
+      }
+    );
+  } else {
+    baseSteps.push({ 
+      status: 'delivered', 
+      label: fulfillmentMethod === 'pickup' ? 'Picked Up' : 'Completed',
+      description: 'Enjoy your coffee!',
+      icon: CheckCircle2 
+    });
+  }
+
+  return baseSteps;
+};
+
+const getStatusOrder = (fulfillmentMethod: FulfillmentMethod): OrderStatus[] => {
+  if (fulfillmentMethod === 'delivery') {
+    return ['confirmed', 'preparing', 'ready', 'out_for_delivery', 'delivered'];
+  }
+  return ['confirmed', 'preparing', 'ready', 'delivered'];
+};
 
 function OrderTracking() {
   const { orderId } = useParams();
@@ -72,6 +100,9 @@ function OrderTracking() {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const order = orders.find(o => o.id === orderId);
+  const fulfillmentMethod = order?.fulfillmentMethod || 'delivery';
+  const trackingSteps = getTrackingSteps(fulfillmentMethod);
+  const statusOrder = getStatusOrder(fulfillmentMethod);
 
   // Simulate real-time status updates
   useEffect(() => {
@@ -86,11 +117,11 @@ function OrderTracking() {
         clearInterval(statusProgression);
         return prev;
       });
-      setEstimatedTime(prev => Math.max(0, prev - 5));
-    }, 8000); // Progress every 8 seconds for demo
+      setEstimatedTime(prev => Math.max(0, prev - 3));
+    }, 6000); // Progress every 6 seconds for demo
 
     return () => clearInterval(statusProgression);
-  }, [order]);
+  }, [order, statusOrder]);
 
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -98,6 +129,22 @@ function OrderTracking() {
   };
 
   const currentStepIndex = statusOrder.indexOf(currentStatus);
+
+  const getFulfillmentIcon = () => {
+    switch (fulfillmentMethod) {
+      case 'pickup': return Store;
+      case 'drivethru': return Car;
+      default: return Truck;
+    }
+  };
+
+  const getFulfillmentLabel = () => {
+    switch (fulfillmentMethod) {
+      case 'pickup': return 'In-Store Pickup';
+      case 'drivethru': return 'Drive-Thru';
+      default: return 'Delivery';
+    }
+  };
 
   if (!order) {
     return (
@@ -111,7 +158,7 @@ function OrderTracking() {
               <p className="text-muted-foreground mb-8">
                 We couldn't find an order with that ID.
               </p>
-              <Link to="/profile/orders">
+              <Link to="/profile">
                 <Button>View Your Orders</Button>
               </Link>
             </div>
@@ -154,21 +201,26 @@ function OrderTracking() {
               </Button>
             </div>
 
-            {/* Status Card */}
             <Card className="mb-8 overflow-hidden">
               <CardHeader className="bg-gradient-to-r from-gold/20 to-christmas/20">
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle className="text-xl">
-                      {trackingSteps[currentStepIndex].label}
+                      {trackingSteps[currentStepIndex]?.label || 'Processing'}
                     </CardTitle>
                     <p className="text-muted-foreground">
-                      {trackingSteps[currentStepIndex].description}
+                      {trackingSteps[currentStepIndex]?.description || 'Your order is being processed'}
                     </p>
                   </div>
-                  <Badge className="bg-gold text-gold-foreground">
-                    {currentStatus === 'delivered' ? 'Complete' : 'In Progress'}
-                  </Badge>
+                  <div className="flex items-center gap-3">
+                    <Badge variant="outline" className="flex items-center gap-1">
+                      {React.createElement(getFulfillmentIcon(), { className: "w-3 h-3" })}
+                      {getFulfillmentLabel()}
+                    </Badge>
+                    <Badge className="bg-gold text-gold-foreground">
+                      {currentStatus === 'delivered' ? 'Complete' : 'In Progress'}
+                    </Badge>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="pt-8">
@@ -325,17 +377,25 @@ function OrderTracking() {
               </CardContent>
             </Card>
 
-            {/* Delivery Location */}
+            {/* Location Info */}
             <Card className="mt-8">
               <CardContent className="pt-6">
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 rounded-full bg-christmas/20 flex items-center justify-center">
-                    <MapPin className="w-6 h-6 text-christmas" />
+                    {fulfillmentMethod === 'delivery' ? (
+                      <MapPin className="w-6 h-6 text-christmas" />
+                    ) : (
+                      <Store className="w-6 h-6 text-christmas" />
+                    )}
                   </div>
                   <div>
-                    <h3 className="font-semibold">Delivery Address</h3>
+                    <h3 className="font-semibold">
+                      {fulfillmentMethod === 'delivery' ? 'Delivery Address' : 'Store Location'}
+                    </h3>
                     <p className="text-muted-foreground">
-                      123 Coffee Street, Brewville, CA 90210
+                      {fulfillmentMethod === 'delivery' 
+                        ? '123 Coffee Street, Brewville, CA 90210'
+                        : 'Café 1% - Downtown, 123 Main Street, New York, NY 10001'}
                     </p>
                   </div>
                 </div>

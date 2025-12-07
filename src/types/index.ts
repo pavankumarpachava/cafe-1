@@ -38,6 +38,8 @@ export interface Notification {
   type: 'order' | 'reward' | 'promo';
 }
 
+export type FulfillmentMethod = 'delivery' | 'pickup' | 'drivethru';
+
 export interface Order {
   id: string;
   items: CartItem[];
@@ -45,5 +47,6 @@ export interface Order {
   creditsEarned: number;
   creditsUsed: number;
   createdAt: Date;
-  status: 'pending' | 'processing' | 'completed';
+  status: 'pending' | 'processing' | 'ready' | 'completed' | 'delivered';
+  fulfillmentMethod: FulfillmentMethod;
 }

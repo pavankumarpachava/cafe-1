@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { CartItem, User, Notification, Order, Product } from '@/types';
+import { CartItem, User, Notification, Order, Product, FulfillmentMethod } from '@/types';
 
 interface StoreContextType {
   // Cart
@@ -41,7 +41,7 @@ interface StoreContextType {
 
   // Orders
   orders: Order[];
-  placeOrder: (useCredits: boolean) => Order | null;
+  placeOrder: (useCredits: boolean, fulfillmentMethod?: FulfillmentMethod) => Order | null;
 
   // Theme
   isDark: boolean;
@@ -282,7 +282,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const unreadCount = notifications.filter(n => !n.read).length;
 
   // Order functions
-  const placeOrder = (useCreditsForOrder: boolean): Order | null => {
+  const placeOrder = (useCreditsForOrder: boolean, fulfillmentMethod: FulfillmentMethod = 'delivery'): Order | null => {
     if (cart.length === 0) return null;
 
     let creditsUsed = 0;
@@ -304,7 +304,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       creditsEarned,
       creditsUsed,
       createdAt: new Date(),
-      status: 'processing'
+      status: 'processing',
+      fulfillmentMethod
     };
 
     setOrders(prev => [order, ...prev]);

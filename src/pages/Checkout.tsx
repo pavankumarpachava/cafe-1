@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Trash2, CreditCard, Award, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Trash2, CreditCard, Award, CheckCircle, Store, Car, Truck } from 'lucide-react';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { PageTransition } from '@/components/layout/PageTransition';
@@ -10,6 +10,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+
+type FulfillmentMethod = 'delivery' | 'pickup' | 'drivethru';
 
 const Checkout = () => {
   const { cart, cartTotal, user, isAuthenticated, placeOrder, removeFromCart } = useStore();
@@ -17,6 +20,7 @@ const Checkout = () => {
   const [discountCode, setDiscountCode] = useState('');
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderDetails, setOrderDetails] = useState<any>(null);
+  const [fulfillmentMethod, setFulfillmentMethod] = useState<FulfillmentMethod>('delivery');
   const navigate = useNavigate();
 
   const creditsDiscount = useCredits && user ? Math.min(user.credits, cartTotal) : 0;
@@ -24,7 +28,7 @@ const Checkout = () => {
   const creditsEarned = Math.floor(finalTotal);
 
   const handlePlaceOrder = () => {
-    const order = placeOrder(useCredits);
+    const order = placeOrder(useCredits, fulfillmentMethod);
     if (order) {
       setOrderDetails(order);
       setOrderPlaced(true);
@@ -83,13 +87,18 @@ const Checkout = () => {
                 <span className="font-semibold">+{orderDetails.creditsEarned}</span>
               </div>
             </div>
-            <div className="flex gap-4">
-              <Link to="/profile" className="flex-1">
-                <Button variant="outline" className="w-full">View Orders</Button>
+            <div className="flex flex-col gap-3">
+              <Link to={`/order/${orderDetails.id}`}>
+                <Button className="w-full btn-gold">Track Order</Button>
               </Link>
-              <Link to="/shop" className="flex-1">
-                <Button className="w-full btn-gold">Continue Shopping</Button>
-              </Link>
+              <div className="flex gap-4">
+                <Link to="/profile" className="flex-1">
+                  <Button variant="outline" className="w-full">View Orders</Button>
+                </Link>
+                <Link to="/shop" className="flex-1">
+                  <Button variant="outline" className="w-full">Continue Shopping</Button>
+                </Link>
+              </div>
             </div>
           </motion.div>
         </div>
@@ -156,32 +165,103 @@ const Checkout = () => {
                 </div>
               </div>
 
-              {/* Shipping Info */}
+              {/* Fulfillment Method */}
               <div className="bg-card rounded-xl p-6">
-                <h2 className="text-xl font-semibold mb-4">Shipping Information</h2>
-                <div className="grid sm:grid-cols-2 gap-4">
+                <h2 className="text-xl font-semibold mb-4">Fulfillment Method</h2>
+                <RadioGroup
+                  value={fulfillmentMethod}
+                  onValueChange={(value) => setFulfillmentMethod(value as FulfillmentMethod)}
+                  className="grid grid-cols-3 gap-4"
+                >
                   <div>
-                    <Label>First Name</Label>
-                    <Input className="mt-2" placeholder="John" />
+                    <RadioGroupItem value="delivery" id="delivery" className="peer sr-only" />
+                    <Label
+                      htmlFor="delivery"
+                      className="flex flex-col items-center justify-center p-4 bg-secondary rounded-lg cursor-pointer border-2 border-transparent peer-data-[state=checked]:border-gold peer-data-[state=checked]:bg-gold/10 hover:bg-secondary/80 transition-all"
+                    >
+                      <Truck className="w-8 h-8 mb-2 text-gold" />
+                      <span className="font-medium">Delivery</span>
+                      <span className="text-xs text-muted-foreground">15-30 min</span>
+                    </Label>
                   </div>
                   <div>
-                    <Label>Last Name</Label>
-                    <Input className="mt-2" placeholder="Doe" />
-                  </div>
-                  <div className="sm:col-span-2">
-                    <Label>Address</Label>
-                    <Input className="mt-2" placeholder="123 Coffee Street" />
+                    <RadioGroupItem value="pickup" id="pickup" className="peer sr-only" />
+                    <Label
+                      htmlFor="pickup"
+                      className="flex flex-col items-center justify-center p-4 bg-secondary rounded-lg cursor-pointer border-2 border-transparent peer-data-[state=checked]:border-gold peer-data-[state=checked]:bg-gold/10 hover:bg-secondary/80 transition-all"
+                    >
+                      <Store className="w-8 h-8 mb-2 text-gold" />
+                      <span className="font-medium">In-Store</span>
+                      <span className="text-xs text-muted-foreground">5-10 min</span>
+                    </Label>
                   </div>
                   <div>
-                    <Label>City</Label>
-                    <Input className="mt-2" placeholder="New York" />
+                    <RadioGroupItem value="drivethru" id="drivethru" className="peer sr-only" />
+                    <Label
+                      htmlFor="drivethru"
+                      className="flex flex-col items-center justify-center p-4 bg-secondary rounded-lg cursor-pointer border-2 border-transparent peer-data-[state=checked]:border-gold peer-data-[state=checked]:bg-gold/10 hover:bg-secondary/80 transition-all"
+                    >
+                      <Car className="w-8 h-8 mb-2 text-gold" />
+                      <span className="font-medium">Drive-Thru</span>
+                      <span className="text-xs text-muted-foreground">5-10 min</span>
+                    </Label>
                   </div>
-                  <div>
-                    <Label>ZIP Code</Label>
-                    <Input className="mt-2" placeholder="10001" />
+                </RadioGroup>
+              </div>
+
+              {/* Shipping Info - only show for delivery */}
+              {fulfillmentMethod === 'delivery' && (
+                <div className="bg-card rounded-xl p-6">
+                  <h2 className="text-xl font-semibold mb-4">Delivery Address</h2>
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div>
+                      <Label>First Name</Label>
+                      <Input className="mt-2" placeholder="John" />
+                    </div>
+                    <div>
+                      <Label>Last Name</Label>
+                      <Input className="mt-2" placeholder="Doe" />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <Label>Address</Label>
+                      <Input className="mt-2" placeholder="123 Coffee Street" />
+                    </div>
+                    <div>
+                      <Label>City</Label>
+                      <Input className="mt-2" placeholder="New York" />
+                    </div>
+                    <div>
+                      <Label>ZIP Code</Label>
+                      <Input className="mt-2" placeholder="10001" />
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
+
+              {/* Store Location - show for pickup/drivethru */}
+              {(fulfillmentMethod === 'pickup' || fulfillmentMethod === 'drivethru') && (
+                <div className="bg-card rounded-xl p-6">
+                  <h2 className="text-xl font-semibold mb-4">
+                    {fulfillmentMethod === 'pickup' ? 'Pickup Location' : 'Drive-Thru Location'}
+                  </h2>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 p-4 bg-gold/10 border-2 border-gold rounded-lg">
+                      <Store className="w-6 h-6 text-gold" />
+                      <div>
+                        <p className="font-medium">Café 1% - Downtown</p>
+                        <p className="text-sm text-muted-foreground">123 Main Street, New York, NY 10001</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 p-4 bg-secondary rounded-lg cursor-pointer hover:bg-secondary/80 transition-colors">
+                      <Store className="w-6 h-6 text-muted-foreground" />
+                      <div>
+                        <p className="font-medium">Café 1% - Midtown</p>
+                        <p className="text-sm text-muted-foreground">456 Park Avenue, New York, NY 10022</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Payment */}
               <div className="bg-card rounded-xl p-6">

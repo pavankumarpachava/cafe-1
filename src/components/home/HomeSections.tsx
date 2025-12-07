@@ -203,42 +203,15 @@ export function VideoSection() {
           style={{ y, scale }}
           className="relative max-w-4xl mx-auto rounded-3xl overflow-hidden shadow-2xl group"
         >
-          {/* Video placeholder with parallax effect */}
-          <div className="relative aspect-video bg-gradient-to-br from-espresso to-primary">
-            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
-            
-            {/* Coffee steam animation */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <motion.div
-                animate={{
-                  y: [0, -20, 0],
-                  opacity: [0.3, 0.6, 0.3],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: 'easeInOut',
-                }}
-                className="w-32 h-32 bg-card/10 rounded-full blur-2xl"
-              />
-            </div>
-
-            {/* Play button */}
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              className="absolute inset-0 flex items-center justify-center"
-            >
-              <div className="w-24 h-24 rounded-full bg-gold/90 backdrop-blur-sm flex items-center justify-center shadow-lg group-hover:bg-gold transition-colors">
-                <Play className="w-10 h-10 text-primary-foreground ml-1" fill="currentColor" />
-              </div>
-            </motion.button>
-
-            {/* Decorative text */}
-            <div className="absolute bottom-8 left-8 text-card">
-              <p className="text-sm font-medium opacity-70">Watch Now</p>
-              <p className="text-2xl font-display font-bold">Crafting Excellence</p>
-            </div>
+          {/* Embedded YouTube Video */}
+          <div className="relative aspect-video">
+            <iframe
+              src="https://www.youtube.com/embed/qNwo7Byebhg?rel=0&modestbranding=1"
+              title="Coffee Making Process"
+              className="w-full h-full"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
           </div>
 
           {/* Floating elements with parallax */}
@@ -252,7 +225,7 @@ export function VideoSection() {
               repeat: Infinity,
               ease: 'easeInOut',
             }}
-            className="absolute -top-6 -right-6 w-24 h-24 bg-christmas/20 rounded-full blur-xl"
+            className="absolute -top-6 -right-6 w-24 h-24 bg-christmas/20 rounded-full blur-xl pointer-events-none"
           />
           <motion.div
             animate={{
@@ -264,7 +237,7 @@ export function VideoSection() {
               repeat: Infinity,
               ease: 'easeInOut',
             }}
-            className="absolute -bottom-6 -left-6 w-32 h-32 bg-gold/20 rounded-full blur-xl"
+            className="absolute -bottom-6 -left-6 w-32 h-32 bg-gold/20 rounded-full blur-xl pointer-events-none"
           />
         </motion.div>
       </motion.div>
