@@ -63,8 +63,9 @@ export function Navbar() {
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 group">
               <Coffee className="w-8 h-8 text-gold transition-transform group-hover:rotate-12" />
-              <span className="font-display text-xl font-bold text-foreground tracking-tight">
-                CAFÉ <span className="text-gold">1%</span>
+              <span className="font-display text-xl font-bold tracking-tight">
+                <span className="bg-gradient-to-br from-foreground via-foreground to-latte bg-clip-text text-transparent">CAFÉ</span>{' '}
+                <span className="text-christmas">1%</span>
               </span>
             </Link>
 

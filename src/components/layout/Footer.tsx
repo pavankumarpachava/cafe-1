@@ -3,6 +3,13 @@ import { Coffee, Instagram, Twitter, Facebook, Mail } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
+const supportLinks = [
+  { name: 'FAQ', path: '/faq' },
+  { name: 'Shipping', path: '/shipping' },
+  { name: 'Returns', path: '/returns' },
+  { name: 'Privacy Policy', path: '/privacy' },
+];
+
 export function Footer() {
   return (
     <footer className="bg-primary text-primary-foreground">
@@ -13,20 +20,36 @@ export function Footer() {
             <Link to="/" className="flex items-center gap-2 mb-4">
               <Coffee className="w-8 h-8 text-gold" />
               <span className="font-display text-xl font-bold tracking-tight">
-                CAFÉ <span className="text-gold">1%</span>
+                <span className="bg-gradient-to-br from-primary-foreground via-primary-foreground to-latte bg-clip-text text-transparent">CAFÉ</span>{' '}
+                <span className="text-christmas">1%</span>
               </span>
             </Link>
             <p className="text-primary-foreground/70 mb-6">
               Crafting moments of pure coffee bliss since 2020. Ethically sourced, expertly roasted.
             </p>
             <div className="flex gap-4">
-              <a href="#" className="hover:text-gold transition-colors">
+              <a 
+                href="https://instagram.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-gold transition-colors"
+              >
                 <Instagram className="w-5 h-5" />
               </a>
-              <a href="#" className="hover:text-gold transition-colors">
+              <a 
+                href="https://twitter.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-gold transition-colors"
+              >
                 <Twitter className="w-5 h-5" />
               </a>
-              <a href="#" className="hover:text-gold transition-colors">
+              <a 
+                href="https://facebook.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-gold transition-colors"
+              >
                 <Facebook className="w-5 h-5" />
               </a>
             </div>
@@ -53,14 +76,14 @@ export function Footer() {
           <div>
             <h3 className="font-semibold mb-4">Support</h3>
             <ul className="space-y-2">
-              {['FAQ', 'Shipping', 'Returns', 'Privacy Policy'].map((item) => (
-                <li key={item}>
-                  <a
-                    href="#"
+              {supportLinks.map((item) => (
+                <li key={item.name}>
+                  <Link
+                    to={item.path}
                     className="text-primary-foreground/70 hover:text-gold transition-colors"
                   >
-                    {item}
-                  </a>
+                    {item.name}
+                  </Link>
                 </li>
               ))}
             </ul>
