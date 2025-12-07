@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
+import { PageTransition } from '@/components/layout/PageTransition';
 import { Coffee, Leaf, Heart, Award } from 'lucide-react';
 
 const About = () => {
@@ -36,9 +37,10 @@ const About = () => {
   ];
 
   return (
-    <div className="min-h-screen">
-      <Navbar />
-      <main>
+    <PageTransition>
+      <div className="min-h-screen">
+        <Navbar />
+        <main>
         {/* Hero */}
         <section className="relative py-24 overflow-hidden">
           <div className="absolute inset-0">
@@ -165,9 +167,10 @@ const About = () => {
             </div>
           </div>
         </section>
-      </main>
-      <Footer />
-    </div>
+        </main>
+        <Footer />
+      </div>
+    </PageTransition>
   );
 };
 

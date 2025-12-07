@@ -1,6 +1,7 @@
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ShoppingBag, Plus } from 'lucide-react';
+import { Plus, Heart } from 'lucide-react';
 import { Product } from '@/types';
 import { useStore } from '@/context/StoreContext';
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,18 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, featured }: ProductCardProps) {
-  const { addToCart } = useStore();
+  const { addToCart, isInWishlist, toggleWishlist } = useStore();
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isHovering, setIsHovering] = useState(false);
+
+  // Randomly select initial image on mount
+  const randomInitialIndex = useMemo(() => {
+    return Math.floor(Math.random() * (product.images?.length || 1));
+  }, [product.id]);
+
+  const images = product.images || [product.main_image];
+  const displayImage = images[isHovering ? currentImageIndex : randomInitialIndex] || product.main_image;
+  const inWishlist = isInWishlist(product.id);
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -33,6 +45,27 @@ export function ProductCard({ product, featured }: ProductCardProps) {
     });
   };
 
+  const handleWishlistToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleWishlist(product);
+    toast({
+      title: inWishlist ? 'Removed from favorites' : 'Added to favorites',
+      description: inWishlist 
+        ? `${product.name} removed from your favorites.`
+        : `${product.name} added to your favorites.`,
+    });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isHovering || images.length <= 1) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const percentage = x / rect.width;
+    const newIndex = Math.min(Math.floor(percentage * images.length), images.length - 1);
+    setCurrentImageIndex(newIndex);
+  };
+
   return (
     <Link to={`/product/${product.id}`}>
       <motion.div
@@ -41,14 +74,54 @@ export function ProductCard({ product, featured }: ProductCardProps) {
           featured ? 'border-2 border-gold/20' : ''
         }`}
       >
-        <div className="relative aspect-square overflow-hidden">
-          <img
-            src={product.main_image}
+        <div 
+          className="relative aspect-square overflow-hidden"
+          onMouseEnter={() => setIsHovering(true)}
+          onMouseLeave={() => {
+            setIsHovering(false);
+            setCurrentImageIndex(0);
+          }}
+          onMouseMove={handleMouseMove}
+        >
+          <motion.img
+            key={displayImage}
+            src={displayImage}
             alt={product.name}
             loading="lazy"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.2 }}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
           
+          {/* Image indicator dots */}
+          {images.length > 1 && isHovering && (
+            <div className="absolute bottom-16 left-1/2 -translate-x-1/2 flex gap-1.5">
+              {images.map((_, idx) => (
+                <div
+                  key={idx}
+                  className={`w-1.5 h-1.5 rounded-full transition-all ${
+                    idx === currentImageIndex ? 'bg-gold w-3' : 'bg-card/60'
+                  }`}
+                />
+              ))}
+            </div>
+          )}
+          
+          {/* Wishlist Button */}
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="absolute top-4 right-4 p-2 rounded-full bg-card/90 backdrop-blur-sm shadow-lg hover:bg-card transition-colors z-10"
+            onClick={handleWishlistToggle}
+          >
+            <Heart 
+              className={`w-5 h-5 transition-colors ${
+                inWishlist ? 'fill-christmas text-christmas' : 'text-muted-foreground hover:text-christmas'
+              }`} 
+            />
+          </motion.button>
+
           {/* Quick Add Button */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}

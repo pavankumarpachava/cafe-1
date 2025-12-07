@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Send, Clock } from 'lucide-react';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
+import { PageTransition } from '@/components/layout/PageTransition';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -65,9 +66,10 @@ const Contact = () => {
   ];
 
   return (
-    <div className="min-h-screen">
-      <Navbar />
-      <main className="py-24">
+    <PageTransition>
+      <div className="min-h-screen">
+        <Navbar />
+        <main className="py-24">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ y: 30, opacity: 0 }}
@@ -181,9 +183,10 @@ const Contact = () => {
             </motion.div>
           </div>
         </div>
-      </main>
-      <Footer />
-    </div>
+        </main>
+        <Footer />
+      </div>
+    </PageTransition>
   );
 };
 
