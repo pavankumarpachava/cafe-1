@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Trash2, CreditCard, Award, CheckCircle, Store, Car, Truck, Snowflake, Flame } from 'lucide-react';
@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { AuthModal } from '@/components/auth/AuthModal';
+import { CheckoutSkeleton } from '@/components/ui/skeleton-loader';
 import { isProductCold, MA_COLD_BEVERAGE_TAX_RATE } from '@/data/products';
 
 type FulfillmentMethod = 'delivery' | 'pickup' | 'drivethru';
@@ -19,16 +19,22 @@ type FulfillmentMethod = 'delivery' | 'pickup' | 'drivethru';
 const DELIVERY_FEE = 3.99;
 
 const Checkout = () => {
-  const { cart, cartTotal, user, isAuthenticated, placeOrder, removeFromCart } = useStore();
+  const { cart, cartTotal, user, isAuthenticated, isGuest, placeOrder, removeFromCart, isLoading } = useStore();
   const [useCredits, setUseCredits] = useState(false);
   const [discountCode, setDiscountCode] = useState('');
   const [discountApplied, setDiscountApplied] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderDetails, setOrderDetails] = useState<any>(null);
   const [fulfillmentMethod, setFulfillmentMethod] = useState<FulfillmentMethod>('delivery');
-  const [showAuthModal, setShowAuthModal] = useState(false);
   const [carDetails, setCarDetails] = useState({ model: '', color: '' });
   const navigate = useNavigate();
+
+  // Redirect to login if not authenticated and not guest
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated && !isGuest) {
+      navigate('/login?next=/checkout');
+    }
+  }, [isAuthenticated, isGuest, isLoading, navigate]);
 
   // Calculate tax based on MA rules (only cold drinks are taxed)
   const taxCalculation = useMemo(() => {
@@ -71,11 +77,6 @@ const Checkout = () => {
   };
 
   const handlePlaceOrder = () => {
-    if (!isAuthenticated) {
-      setShowAuthModal(true);
-      return;
-    }
-
     const order = placeOrder(useCredits, fulfillmentMethod);
     if (order) {
       setOrderDetails({
@@ -88,6 +89,24 @@ const Checkout = () => {
       setOrderPlaced(true);
     }
   };
+
+  // Show skeleton while loading
+  if (isLoading) {
+    return (
+      <PageTransition>
+        <div className="min-h-screen">
+          <Navbar />
+          <CheckoutSkeleton />
+          <Footer />
+        </div>
+      </PageTransition>
+    );
+  }
+
+  // Redirect check - show nothing while redirecting
+  if (!isAuthenticated && !isGuest) {
+    return null;
+  }
 
   if (cart.length === 0 && !orderPlaced) {
     return (
@@ -551,12 +570,6 @@ const Checkout = () => {
         </div>
       </main>
       <Footer />
-
-      <AuthModal 
-        isOpen={showAuthModal} 
-        onClose={() => setShowAuthModal(false)}
-        onSuccess={handlePlaceOrder}
-      />
     </div>
     </PageTransition>
   );

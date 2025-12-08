@@ -20,6 +20,27 @@ export interface CartItem {
   ice: 'none' | 'light' | 'regular' | 'extra';
 }
 
+export interface SavedAddress {
+  id: string;
+  fullName: string;
+  street: string;
+  apt?: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  phone: string;
+  isDefault: boolean;
+}
+
+export interface SavedCard {
+  id: string;
+  type: 'visa' | 'mastercard' | 'amex';
+  lastFour: string;
+  expiryMonth: string;
+  expiryYear: string;
+  isDefault: boolean;
+}
+
 export interface User {
   id: string;
   name: string;
@@ -28,6 +49,14 @@ export interface User {
   credits: number;
   preferredDrink?: string;
   createdAt: Date;
+  savedAddresses?: SavedAddress[];
+  savedCards?: SavedCard[];
+}
+
+export interface GuestUser {
+  isGuest: true;
+  email?: string;
+  name?: string;
 }
 
 export interface Notification {
@@ -50,4 +79,5 @@ export interface Order {
   createdAt: Date;
   status: 'pending' | 'processing' | 'ready' | 'completed' | 'delivered';
   fulfillmentMethod: FulfillmentMethod;
+  isGuestOrder?: boolean;
 }
