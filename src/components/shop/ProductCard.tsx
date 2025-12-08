@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Plus, Heart } from 'lucide-react';
@@ -16,6 +16,8 @@ export function ProductCard({ product, featured }: ProductCardProps) {
   const { addToCart, isInWishlist, toggleWishlist } = useStore();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isHovering, setIsHovering] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0 });
 
   // Randomly select initial image on mount
   const randomInitialIndex = useMemo(() => {
@@ -25,6 +27,35 @@ export function ProductCard({ product, featured }: ProductCardProps) {
   const images = product.images || [product.main_image];
   const displayImage = images[isHovering ? currentImageIndex : randomInitialIndex] || product.main_image;
   const inWishlist = isInWishlist(product.id);
+
+  // 3D Tilt effect
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    const rotateX = ((y - centerY) / centerY) * -8;
+    const rotateY = ((x - centerX) / centerX) * 8;
+    
+    setTilt({ rotateX, rotateY });
+
+    // Image scroll on hover
+    if (images.length > 1) {
+      const percentage = x / rect.width;
+      const newIndex = Math.min(Math.floor(percentage * images.length), images.length - 1);
+      setCurrentImageIndex(newIndex);
+    }
+  }, [images.length]);
+
+  const handleMouseLeave = useCallback(() => {
+    setIsHovering(false);
+    setCurrentImageIndex(0);
+    setTilt({ rotateX: 0, rotateY: 0 });
+  }, []);
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -57,47 +88,44 @@ export function ProductCard({ product, featured }: ProductCardProps) {
     });
   };
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isHovering || images.length <= 1) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const percentage = x / rect.width;
-    const newIndex = Math.min(Math.floor(percentage * images.length), images.length - 1);
-    setCurrentImageIndex(newIndex);
-  };
-
   return (
     <Link to={`/product/${product.id}`}>
       <motion.div
-        whileHover={{ y: -8 }}
+        ref={cardRef}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
-        className={`group bg-card rounded-2xl overflow-hidden transition-all duration-500 ${
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={handleMouseLeave}
+        onMouseMove={handleMouseMove}
+        className={`group bg-card rounded-2xl overflow-hidden ${
           featured ? 'border-2 border-gold/20' : ''
         }`}
         style={{
-          boxShadow: '0 10px 40px -10px rgba(0, 0, 0, 0.2)',
+          transform: `perspective(1000px) rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg) scale3d(${isHovering ? 1.02 : 1}, ${isHovering ? 1.02 : 1}, ${isHovering ? 1.02 : 1})`,
+          transition: 'transform 0.3s cubic-bezier(0.03, 0.98, 0.52, 0.99), box-shadow 0.3s ease',
+          transformStyle: 'preserve-3d',
+          boxShadow: isHovering 
+            ? '0 25px 60px -15px rgba(0, 0, 0, 0.35), 0 0 40px rgba(212, 175, 55, 0.15)' 
+            : '0 10px 40px -10px rgba(0, 0, 0, 0.2)',
         }}
-        whileTap={{ scale: 0.98 }}
       >
-        <motion.div 
-          className="relative aspect-square overflow-hidden"
-          onMouseEnter={() => setIsHovering(true)}
-          onMouseLeave={() => {
-            setIsHovering(false);
-            setCurrentImageIndex(0);
-          }}
-          onMouseMove={handleMouseMove}
-          whileHover={{
-            boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.35), 0 0 40px rgba(212, 175, 55, 0.1)',
-          }}
-        >
+        <div className="relative aspect-square overflow-hidden">
           {/* Cinematic gradient overlay */}
           <motion.div 
             className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent z-[1] pointer-events-none"
             animate={{ opacity: isHovering ? 0.5 : 0.2 }}
             transition={{ duration: 0.4 }}
+          />
+          
+          {/* Glare effect */}
+          <motion.div
+            className="absolute inset-0 pointer-events-none z-[3]"
+            style={{
+              background: `radial-gradient(circle at ${50 + tilt.rotateY * 3}% ${50 - tilt.rotateX * 3}%, rgba(255,255,255,0.15) 0%, transparent 60%)`,
+              opacity: isHovering ? 1 : 0,
+              transition: 'opacity 0.3s ease',
+            }}
           />
           
           <motion.img
@@ -127,7 +155,7 @@ export function ProductCard({ product, featured }: ProductCardProps) {
           
           {/* Image indicator dots */}
           {images.length > 1 && isHovering && (
-            <div className="absolute bottom-16 left-1/2 -translate-x-1/2 flex gap-1.5">
+            <div className="absolute bottom-16 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
               {images.map((_, idx) => (
                 <div
                   key={idx}
@@ -145,6 +173,7 @@ export function ProductCard({ product, featured }: ProductCardProps) {
             animate={{ opacity: 1, scale: 1 }}
             className="absolute top-4 right-4 p-2 rounded-full bg-card/90 backdrop-blur-sm shadow-lg hover:bg-card transition-colors z-10"
             onClick={handleWishlistToggle}
+            style={{ transform: 'translateZ(20px)' }}
           >
             <Heart 
               className={`w-5 h-5 transition-colors ${
@@ -156,8 +185,9 @@ export function ProductCard({ product, featured }: ProductCardProps) {
           {/* Quick Add Button */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
-            whileHover={{ opacity: 1, y: 0 }}
-            className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
+            animate={{ opacity: isHovering ? 1 : 0, y: isHovering ? 0 : 20 }}
+            className="absolute bottom-4 right-4 z-10"
+            style={{ transform: 'translateZ(20px)' }}
           >
             <Button
               size="icon"
@@ -169,7 +199,7 @@ export function ProductCard({ product, featured }: ProductCardProps) {
           </motion.div>
 
           {/* Category Badge */}
-          <div className="absolute top-4 left-4">
+          <div className="absolute top-4 left-4" style={{ transform: 'translateZ(20px)' }}>
             <span className={`px-3 py-1 text-xs font-medium rounded-full ${
               product.category === 'Christmas'
                 ? 'bg-christmas text-christmas-foreground'
@@ -178,9 +208,9 @@ export function ProductCard({ product, featured }: ProductCardProps) {
               {product.category}
             </span>
           </div>
-        </motion.div>
+        </div>
 
-        <div className="p-5">
+        <div className="p-5" style={{ transform: 'translateZ(10px)' }}>
           <h3 className="font-semibold text-lg mb-1 group-hover:text-gold transition-colors">
             {product.name}
           </h3>
