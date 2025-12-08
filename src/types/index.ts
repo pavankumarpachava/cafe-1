@@ -8,6 +8,7 @@ export interface Product {
   description: string;
   tastingNotes?: string[];
   ingredients?: string[];
+  isHot?: boolean;
 }
 
 export interface CartItem {

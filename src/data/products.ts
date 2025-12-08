@@ -1,26 +1,26 @@
 import { Product } from '@/types';
 
 const coffeeData = [
-  { id: 1, name: "Espresso", category: "Espresso", slug: "espresso" },
-  { id: 2, name: "Double Espresso", category: "Espresso", slug: "double-espresso" },
-  { id: 3, name: "Cappuccino", category: "Espresso", slug: "cappuccino" },
-  { id: 4, name: "Latte", category: "Espresso", slug: "latte" },
-  { id: 5, name: "Flat White", category: "Espresso", slug: "flat-white" },
-  { id: 6, name: "Mocha", category: "Specialty", slug: "mocha" },
-  { id: 7, name: "Americano", category: "Espresso", slug: "americano" },
-  { id: 8, name: "Cold Brew", category: "Iced", slug: "cold-brew" },
-  { id: 9, name: "Iced Latte", category: "Iced", slug: "iced-latte" },
-  { id: 10, name: "Iced Mocha", category: "Iced", slug: "iced-mocha" },
-  { id: 11, name: "Frappuccino", category: "Iced", slug: "frappuccino" },
-  { id: 12, name: "Affogato", category: "Specialty", slug: "affogato" },
-  { id: 13, name: "Gingerbread Latte", category: "Christmas", slug: "gingerbread-latte" },
-  { id: 14, name: "Peppermint Mocha", category: "Christmas", slug: "peppermint-mocha" },
-  { id: 15, name: "Eggnog Latte", category: "Christmas", slug: "eggnog-latte" },
-  { id: 16, name: "Hot Chocolate", category: "Specialty", slug: "hot-chocolate" },
-  { id: 17, name: "Chai Latte", category: "Specialty", slug: "chai-latte" },
-  { id: 18, name: "Matcha Latte", category: "Specialty", slug: "matcha-latte" },
-  { id: 19, name: "Caramel Macchiato", category: "Specialty", slug: "caramel-macchiato" },
-  { id: 20, name: "Vanilla Latte", category: "Specialty", slug: "vanilla-latte" },
+  { id: 1, name: "Espresso", category: "Espresso", slug: "espresso", isHot: true },
+  { id: 2, name: "Double Espresso", category: "Espresso", slug: "double-espresso", isHot: true },
+  { id: 3, name: "Cappuccino", category: "Espresso", slug: "cappuccino", isHot: true },
+  { id: 4, name: "Latte", category: "Espresso", slug: "latte", isHot: true },
+  { id: 5, name: "Flat White", category: "Espresso", slug: "flat-white", isHot: true },
+  { id: 6, name: "Mocha", category: "Specialty", slug: "mocha", isHot: true },
+  { id: 7, name: "Americano", category: "Espresso", slug: "americano", isHot: true },
+  { id: 8, name: "Cold Brew", category: "Iced", slug: "cold-brew", isHot: false },
+  { id: 9, name: "Iced Latte", category: "Iced", slug: "iced-latte", isHot: false },
+  { id: 10, name: "Iced Mocha", category: "Iced", slug: "iced-mocha", isHot: false },
+  { id: 11, name: "Frappuccino", category: "Iced", slug: "frappuccino", isHot: false },
+  { id: 12, name: "Affogato", category: "Specialty", slug: "affogato", isHot: true },
+  { id: 13, name: "Gingerbread Latte", category: "Christmas", slug: "gingerbread-latte", isHot: true },
+  { id: 14, name: "Peppermint Mocha", category: "Christmas", slug: "peppermint-mocha", isHot: true },
+  { id: 15, name: "Eggnog Latte", category: "Christmas", slug: "eggnog-latte", isHot: true },
+  { id: 16, name: "Hot Chocolate", category: "Specialty", slug: "hot-chocolate", isHot: true },
+  { id: 17, name: "Chai Latte", category: "Specialty", slug: "chai-latte", isHot: true },
+  { id: 18, name: "Matcha Latte", category: "Specialty", slug: "matcha-latte", isHot: true },
+  { id: 19, name: "Caramel Macchiato", category: "Specialty", slug: "caramel-macchiato", isHot: true },
+  { id: 20, name: "Vanilla Latte", category: "Specialty", slug: "vanilla-latte", isHot: true },
 ];
 
 const descriptions: Record<string, string> = {
@@ -62,6 +62,15 @@ export const getRandomImage = (images: string[]) => {
   return images[Math.floor(Math.random() * images.length)];
 };
 
+// Helper to check if a product is a cold drink (for MA tax)
+export const isProductCold = (productId: number): boolean => {
+  const product = coffeeData.find(p => p.id === productId);
+  return product ? !product.isHot : false;
+};
+
+// MA Cold Beverage Tax Rate
+export const MA_COLD_BEVERAGE_TAX_RATE = 0.0625;
+
 export const products: Product[] = coffeeData.map((item) => {
   const basePath = `/images/products/${item.slug}`;
   const images = [
@@ -80,7 +89,8 @@ export const products: Product[] = coffeeData.map((item) => {
     price: 4.50 + (item.id % 5) * 0.75,
     description: descriptions[item.name] || `Premium ${item.name} crafted with care and expertise.`,
     tastingNotes: tastingNotes[item.name] || ['Aromatic', 'Balanced'],
-    ingredients: ['Premium Coffee Beans', 'Filtered Water', 'Fresh Milk']
+    ingredients: ['Premium Coffee Beans', 'Filtered Water', 'Fresh Milk'],
+    isHot: item.isHot,
   };
 });
 

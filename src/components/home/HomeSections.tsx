@@ -203,11 +203,11 @@ export function VideoSection() {
           style={{ y, scale }}
           className="relative max-w-4xl mx-auto rounded-3xl overflow-hidden shadow-2xl group"
         >
-          {/* Embedded YouTube Video */}
-          <div className="relative aspect-video">
+          {/* Embedded YouTube Video - Working coffee video */}
+          <div className="relative aspect-video bg-secondary">
             <iframe
-              src="https://www.youtube.com/embed/qNwo7Byebhg?rel=0&modestbranding=1"
-              title="Coffee Making Process"
+              src="https://www.youtube.com/embed/4M2FPwYLA5I?rel=0&modestbranding=1"
+              title="The Art of Coffee Making"
               className="w-full h-full"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
