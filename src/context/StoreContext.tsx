@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { CartItem, User, Notification, Order, Product, FulfillmentMethod } from '@/types';
+import { CartItem, User, Notification, Order, Product, FulfillmentMethod, SavedAddress, SavedCard } from '@/types';
 
 interface StoreContextType {
   // Cart
@@ -21,12 +21,21 @@ interface StoreContextType {
   // User & Auth
   user: User | null;
   isAuthenticated: boolean;
+  isGuest: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   loginWithGoogle: () => Promise<boolean>;
   signup: (name: string, email: string, password: string) => Promise<boolean>;
   logout: () => void;
+  continueAsGuest: () => void;
   updateUser: (updates: Partial<User>) => void;
   updateAvatar: (avatar: string) => void;
+
+  // Saved Addresses & Cards
+  addAddress: (address: Omit<SavedAddress, 'id'>) => void;
+  updateAddress: (id: string, address: Partial<SavedAddress>) => void;
+  deleteAddress: (id: string) => void;
+  addCard: (card: Omit<SavedCard, 'id'>) => void;
+  deleteCard: (id: string) => void;
 
   // Credits/Rewards
   addCredits: (amount: number) => void;
@@ -46,11 +55,17 @@ interface StoreContextType {
   // Theme
   isDark: boolean;
   toggleTheme: () => void;
+
+  // Loading state
+  isLoading: boolean;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
 export function StoreProvider({ children }: { children: ReactNode }) {
+  const [isLoading, setIsLoading] = useState(true);
+  const [isGuest, setIsGuest] = useState(false);
+  
   const [cart, setCart] = useState<CartItem[]>(() => {
     const saved = localStorage.getItem('coffee-cart');
     return saved ? JSON.parse(saved) : [];
@@ -71,7 +86,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     return saved ? JSON.parse(saved) : [
       {
         id: '1',
-        title: 'Welcome to Coffee Store!',
+        title: 'Welcome to Café 1%!',
         description: 'Enjoy 20% off your first order with code WELCOME20',
         timestamp: new Date().toISOString(),
         read: false,
@@ -97,6 +112,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     const saved = localStorage.getItem('coffee-theme');
     return saved === 'dark';
   });
+
+  // Simulate session restoration
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Persist state
   useEffect(() => {
@@ -177,6 +200,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   // Auth functions
   const login = async (email: string, password: string): Promise<boolean> => {
     await new Promise(resolve => setTimeout(resolve, 500));
+    setIsGuest(false);
     const existingUser = localStorage.getItem('coffee-user-data-' + email);
     if (existingUser) {
       const userData = JSON.parse(existingUser);
@@ -188,7 +212,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       name: email.split('@')[0],
       email,
       credits: 50,
-      createdAt: new Date()
+      createdAt: new Date(),
+      savedAddresses: [],
+      savedCards: [
+        { id: '1', type: 'visa', lastFour: '4242', expiryMonth: '12', expiryYear: '25', isDefault: true }
+      ]
     };
     localStorage.setItem('coffee-user-data-' + email, JSON.stringify(newUser));
     setUser(newUser);
@@ -197,12 +225,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const loginWithGoogle = async (): Promise<boolean> => {
     await new Promise(resolve => setTimeout(resolve, 500));
+    setIsGuest(false);
     const googleUser: User = {
       id: crypto.randomUUID(),
       name: 'Coffee Lover',
       email: 'coffee.lover@gmail.com',
       credits: 100,
-      createdAt: new Date()
+      createdAt: new Date(),
+      savedAddresses: [],
+      savedCards: []
     };
     setUser(googleUser);
     return true;
@@ -210,12 +241,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const signup = async (name: string, email: string, password: string): Promise<boolean> => {
     await new Promise(resolve => setTimeout(resolve, 500));
+    setIsGuest(false);
     const newUser: User = {
       id: crypto.randomUUID(),
       name,
       email,
       credits: 50,
-      createdAt: new Date()
+      createdAt: new Date(),
+      savedAddresses: [],
+      savedCards: []
     };
     localStorage.setItem('coffee-user-data-' + email, JSON.stringify(newUser));
     setUser(newUser);
@@ -228,6 +262,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
+    setUser(null);
+    setIsGuest(false);
+  };
+
+  const continueAsGuest = () => {
+    setIsGuest(true);
     setUser(null);
   };
 
@@ -243,6 +283,53 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     updateUser({ avatar });
   };
 
+  // Saved Addresses & Cards
+  const addAddress = (address: Omit<SavedAddress, 'id'>) => {
+    if (user) {
+      const newAddress: SavedAddress = { ...address, id: crypto.randomUUID() };
+      const addresses = user.savedAddresses || [];
+      if (address.isDefault) {
+        addresses.forEach(a => a.isDefault = false);
+      }
+      updateUser({ savedAddresses: [...addresses, newAddress] });
+    }
+  };
+
+  const updateAddress = (id: string, updates: Partial<SavedAddress>) => {
+    if (user && user.savedAddresses) {
+      const addresses = user.savedAddresses.map(a => 
+        a.id === id ? { ...a, ...updates } : a
+      );
+      if (updates.isDefault) {
+        addresses.forEach(a => { if (a.id !== id) a.isDefault = false; });
+      }
+      updateUser({ savedAddresses: addresses });
+    }
+  };
+
+  const deleteAddress = (id: string) => {
+    if (user && user.savedAddresses) {
+      updateUser({ savedAddresses: user.savedAddresses.filter(a => a.id !== id) });
+    }
+  };
+
+  const addCard = (card: Omit<SavedCard, 'id'>) => {
+    if (user) {
+      const newCard: SavedCard = { ...card, id: crypto.randomUUID() };
+      const cards = user.savedCards || [];
+      if (card.isDefault) {
+        cards.forEach(c => c.isDefault = false);
+      }
+      updateUser({ savedCards: [...cards, newCard] });
+    }
+  };
+
+  const deleteCard = (id: string) => {
+    if (user && user.savedCards) {
+      updateUser({ savedCards: user.savedCards.filter(c => c.id !== id) });
+    }
+  };
+
   // Credits functions
   const addCredits = (amount: number) => {
     if (user) {
@@ -250,7 +337,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const useCredits = (amount: number): boolean => {
+  const useCreditsFunc = (amount: number): boolean => {
     if (user && user.credits >= amount) {
       updateUser({ credits: user.credits - amount });
       return true;
@@ -288,14 +375,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     let creditsUsed = 0;
     let finalTotal = cartTotal;
 
-    if (useCreditsForOrder && user) {
+    // Only use credits if user is authenticated (not guest)
+    if (useCreditsForOrder && user && !isGuest) {
       const maxCreditsToUse = Math.min(user.credits, Math.floor(cartTotal * 100) / 100);
       creditsUsed = maxCreditsToUse;
       finalTotal = Math.max(0, cartTotal - creditsUsed);
-      useCredits(creditsUsed);
+      useCreditsFunc(creditsUsed);
     }
 
-    const creditsEarned = Math.floor(finalTotal);
+    // Only earn credits if user is authenticated (not guest)
+    const creditsEarned = (user && !isGuest) ? Math.floor(finalTotal) : 0;
 
     const order: Order = {
       id: crypto.randomUUID(),
@@ -305,11 +394,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       creditsUsed,
       createdAt: new Date(),
       status: 'processing',
-      fulfillmentMethod
+      fulfillmentMethod,
+      isGuestOrder: isGuest
     };
 
     setOrders(prev => [order, ...prev]);
-    addCredits(creditsEarned);
+    
+    if (user && !isGuest) {
+      addCredits(creditsEarned);
+    }
+    
     clearCart();
 
     addNotification({
@@ -318,12 +412,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       type: 'order'
     });
 
-    if (creditsEarned > 0) {
+    if (creditsEarned > 0 && !isGuest) {
       addNotification({
         title: 'Credits Earned!',
         description: `You earned ${creditsEarned} credits from this order.`,
         type: 'reward'
       });
+    }
+
+    // Reset guest state after order
+    if (isGuest) {
+      setIsGuest(false);
     }
 
     return order;
@@ -347,14 +446,21 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       toggleWishlist,
       user,
       isAuthenticated: !!user,
+      isGuest,
       login,
       loginWithGoogle,
       signup,
       logout,
+      continueAsGuest,
       updateUser,
       updateAvatar,
+      addAddress,
+      updateAddress,
+      deleteAddress,
+      addCard,
+      deleteCard,
       addCredits,
-      useCredits,
+      useCredits: useCreditsFunc,
       notifications,
       addNotification,
       markAsRead,
@@ -363,7 +469,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       orders,
       placeOrder,
       isDark,
-      toggleTheme
+      toggleTheme,
+      isLoading
     }}>
       {children}
     </StoreContext.Provider>
