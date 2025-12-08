@@ -23,15 +23,18 @@ export function HeroSection() {
 
   return (
     <section ref={ref} className="relative h-screen overflow-hidden">
-      {/* Parallax Background with enhanced depth */}
+      {/* Parallax Background with enhanced depth - optimized for LCP */}
       <motion.div
         style={{ y, scale }}
         className="absolute inset-0"
       >
         <img
           src={heroImage}
-          alt="Christmas coffee"
+          alt="Christmas coffee at Café 1%"
           className="w-full h-full object-cover"
+          fetchPriority="high"
+          loading="eager"
+          decoding="async"
         />
         {/* Multi-layer gradient for depth */}
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
@@ -203,12 +206,13 @@ export function VideoSection() {
           style={{ y, scale }}
           className="relative max-w-4xl mx-auto rounded-3xl overflow-hidden shadow-2xl group"
         >
-          {/* Embedded YouTube Video - Working coffee video */}
+          {/* Embedded YouTube Shorts Video */}
           <div className="relative aspect-video bg-secondary">
             <iframe
-              src="https://www.youtube.com/embed/4M2FPwYLA5I?rel=0&modestbranding=1"
-              title="The Art of Coffee Making"
+              src="https://www.youtube.com/embed/HzOnOaMyEtQ?rel=0&modestbranding=1&autoplay=0"
+              title="Christmas Coffee Making"
               className="w-full h-full"
+              loading="lazy"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             />
