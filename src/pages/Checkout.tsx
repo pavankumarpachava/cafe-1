@@ -7,7 +7,6 @@ import {
 } from 'lucide-react';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
-import { PageTransition } from '@/components/layout/PageTransition';
 import { useStore } from '@/context/StoreContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -255,13 +254,11 @@ const Checkout = () => {
   // Show skeleton while loading
   if (isLoading) {
     return (
-      <PageTransition>
-        <div className="min-h-screen">
-          <Navbar />
-          <CheckoutSkeleton />
-          <Footer />
-        </div>
-      </PageTransition>
+      <div className="min-h-screen">
+        <Navbar />
+        <CheckoutSkeleton />
+        <Footer />
+      </div>
     );
   }
 
@@ -272,18 +269,16 @@ const Checkout = () => {
 
   if (cart.length === 0) {
     return (
-      <PageTransition>
-        <div className="min-h-screen">
-          <Navbar />
-          <div className="container mx-auto px-4 py-24 text-center">
-            <h1 className="text-2xl font-semibold mb-4">Your cart is empty</h1>
-            <Link to="/shop">
-              <Button className="btn-gold">Continue Shopping</Button>
-            </Link>
-          </div>
-          <Footer />
+      <div className="min-h-screen">
+        <Navbar />
+        <div className="container mx-auto px-4 py-24 text-center">
+          <h1 className="text-2xl font-semibold mb-4">Your cart is empty</h1>
+          <Link to="/shop">
+            <Button className="btn-gold">Continue Shopping</Button>
+          </Link>
         </div>
-      </PageTransition>
+        <Footer />
+      </div>
     );
   }
 
@@ -292,8 +287,7 @@ const Checkout = () => {
      deliveryForm.city && deliveryForm.zipCode && deliveryForm.phone);
 
   return (
-    <PageTransition>
-      <div className="min-h-screen">
+    <div className="min-h-screen">
         <Navbar />
         <main className="py-8">
           <div className="container mx-auto px-4">
@@ -935,7 +929,6 @@ const Checkout = () => {
         </main>
         <Footer />
       </div>
-    </PageTransition>
   );
 };
 
