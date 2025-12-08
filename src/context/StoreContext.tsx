@@ -36,6 +36,7 @@ interface StoreContextType {
   deleteAddress: (id: string) => void;
   addCard: (card: Omit<SavedCard, 'id'>) => void;
   deleteCard: (id: string) => void;
+  setDefaultCard: (id: string) => void;
 
   // Credits/Rewards
   addCredits: (amount: number) => void;
@@ -330,6 +331,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const setDefaultCard = (id: string) => {
+    if (user && user.savedCards) {
+      const cards = user.savedCards.map(c => ({
+        ...c,
+        isDefault: c.id === id
+      }));
+      updateUser({ savedCards: cards });
+    }
+  };
+
   // Credits functions
   const addCredits = (amount: number) => {
     if (user) {
@@ -459,6 +470,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       deleteAddress,
       addCard,
       deleteCard,
+      setDefaultCard,
       addCredits,
       useCredits: useCreditsFunc,
       notifications,

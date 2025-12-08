@@ -11,6 +11,7 @@ import ProductDetail from "./pages/ProductDetail";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
+import ProfilePayments from "./pages/ProfilePayments";
 import Checkout from "./pages/Checkout";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
@@ -38,6 +39,7 @@ function AnimatedRoutes() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/profile/:tab" element={<Profile />} />
+        <Route path="/profile/payments" element={<ProfilePayments />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
