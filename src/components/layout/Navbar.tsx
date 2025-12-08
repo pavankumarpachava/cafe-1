@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { Search, ShoppingBag, User, Menu, Moon, Sun, Coffee, Heart } from 'lucide-react';
 import { useStore } from '@/context/StoreContext';
 import { Button } from '@/components/ui/button';
@@ -36,23 +35,16 @@ export function Navbar() {
 
   return (
     <>
-      {/* Announcement Bar */}
-      <motion.div
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        className="bg-christmas text-christmas-foreground text-center py-2 px-4 text-sm font-medium"
-      >
+      {/* Announcement Bar - no animation for faster LCP */}
+      <div className="bg-christmas text-christmas-foreground text-center py-2 px-4 text-sm font-medium">
         <span className="inline-flex items-center gap-2">
           ✨ Free shipping over $20 • Double rewards this week ✨
         </span>
-      </motion.div>
+      </div>
 
-      {/* Main Navbar */}
-      <motion.nav
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ delay: 0.1 }}
-        className={`sticky top-0 z-50 transition-all duration-500 ${
+      {/* Main Navbar - simplified animation */}
+      <nav
+        className={`sticky top-0 z-50 transition-all duration-300 ${
           isScrolled
             ? 'glass-strong py-3'
             : 'bg-transparent py-5'
@@ -157,7 +149,7 @@ export function Navbar() {
             </div>
           </div>
         </div>
-      </motion.nav>
+      </nav>
 
       {/* Overlays */}
       <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />

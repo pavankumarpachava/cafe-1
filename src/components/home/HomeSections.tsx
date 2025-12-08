@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState, useEffect, lazy, Suspense } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Gift, Leaf, Award, Coffee, Play } from 'lucide-react';
@@ -6,28 +6,42 @@ import heroImage from '@/assets/hero-christmas-coffee.jpg';
 import { Button } from '@/components/ui/button';
 import { ProductCard } from '@/components/shop/ProductCard';
 import { products, christmasProducts } from '@/data/products';
-import { Snowfall } from '@/components/effects/Snowfall';
+
+// Lazy load Snowfall to improve LCP
+const Snowfall = lazy(() => import('@/components/effects/Snowfall').then(m => ({ default: m.Snowfall })));
 
 export function HeroSection() {
   const ref = useRef<HTMLDivElement>(null);
+  const [showEffects, setShowEffects] = useState(false);
+  
+  // Delay non-critical effects for better LCP
+  useEffect(() => {
+    const timer = requestIdleCallback ? 
+      requestIdleCallback(() => setShowEffects(true)) : 
+      setTimeout(() => setShowEffects(true), 100);
+    return () => {
+      if (requestIdleCallback) {
+        cancelIdleCallback(timer as number);
+      } else {
+        clearTimeout(timer);
+      }
+    };
+  }, []);
+
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ['start start', 'end start'],
   });
 
-  const y = useTransform(scrollYProgress, [0, 1], [0, 300]);
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.5], [1, 1.2]);
   const textY = useTransform(scrollYProgress, [0, 1], [0, 150]);
-  const badgeY = useTransform(scrollYProgress, [0, 1], [0, 50]);
+  const decorY1 = useTransform(scrollYProgress, [0, 1], [0, 200]);
+  const decorY2 = useTransform(scrollYProgress, [0, 1], [0, 100]);
 
   return (
     <section ref={ref} className="relative h-screen overflow-hidden">
-      {/* Parallax Background with enhanced depth - optimized for LCP */}
-      <motion.div
-        style={{ y, scale }}
-        className="absolute inset-0"
-      >
+      {/* Static Background for instant LCP */}
+      <div className="absolute inset-0">
         <img
           src={heroImage}
           alt="Christmas coffee at Café 1%"
@@ -40,34 +54,42 @@ export function HeroSection() {
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-r from-background/70 via-transparent to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-b from-background/30 to-transparent h-32" />
-      </motion.div>
+      </div>
 
-      {/* Realistic Snowfall */}
-      <Snowfall intensity="heavy" />
+      {/* Lazy loaded Snowfall */}
+      {showEffects && (
+        <Suspense fallback={null}>
+          <Snowfall intensity="heavy" />
+        </Suspense>
+      )}
 
-      {/* Floating Christmas decorations with parallax */}
-      <motion.div
-        style={{ y: useTransform(scrollYProgress, [0, 1], [0, 200]) }}
-        className="absolute top-20 right-20 w-32 h-32 opacity-20"
-      >
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-          className="w-full h-full rounded-full bg-gradient-to-br from-christmas to-gold blur-2xl"
-        />
-      </motion.div>
-      <motion.div
-        style={{ y: useTransform(scrollYProgress, [0, 1], [0, 100]) }}
-        className="absolute bottom-40 left-10 w-48 h-48 opacity-15"
-      >
-        <motion.div
-          animate={{ rotate: -360 }}
-          transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
-          className="w-full h-full rounded-full bg-gradient-to-br from-gold to-christmas blur-3xl"
-        />
-      </motion.div>
+      {/* Floating decorations - only after initial paint */}
+      {showEffects && (
+        <>
+          <motion.div
+            style={{ y: decorY1 }}
+            className="absolute top-20 right-20 w-32 h-32 opacity-20"
+          >
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+              className="w-full h-full rounded-full bg-gradient-to-br from-christmas to-gold blur-2xl"
+            />
+          </motion.div>
+          <motion.div
+            style={{ y: decorY2 }}
+            className="absolute bottom-40 left-10 w-48 h-48 opacity-15"
+          >
+            <motion.div
+              animate={{ rotate: -360 }}
+              transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
+              className="w-full h-full rounded-full bg-gradient-to-br from-gold to-christmas blur-3xl"
+            />
+          </motion.div>
+        </>
+      )}
 
-      {/* Content with enhanced parallax */}
+      {/* Content - renders immediately */}
       <motion.div
         style={{ opacity, y: textY }}
         className="relative h-full flex items-center"
@@ -76,14 +98,13 @@ export function HeroSection() {
           <motion.div
             initial={{ y: 50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.8 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
             className="max-w-2xl"
           >
             <motion.span
-              style={{ y: badgeY }}
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.5 }}
+              transition={{ delay: 0.4 }}
               className="inline-block px-4 py-2 mb-6 text-sm font-medium bg-christmas/90 text-christmas-foreground rounded-full backdrop-blur-sm"
             >
               ✨ Holiday Season Special
