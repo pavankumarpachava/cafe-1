@@ -16,16 +16,18 @@ export function HeroSection() {
   
   // Delay non-critical effects for better LCP
   useEffect(() => {
-    const timer = requestIdleCallback ? 
-      requestIdleCallback(() => setShowEffects(true)) : 
-      setTimeout(() => setShowEffects(true), 100);
-    return () => {
-      if (requestIdleCallback) {
-        cancelIdleCallback(timer as number);
-      } else {
-        clearTimeout(timer);
-      }
-    };
+    // Use requestIdleCallback with fallback for Safari
+    const rIC = typeof window !== 'undefined' && 'requestIdleCallback' in window 
+      ? window.requestIdleCallback 
+      : null;
+    
+    if (rIC) {
+      const handle = rIC(() => setShowEffects(true));
+      return () => window.cancelIdleCallback(handle);
+    } else {
+      const timer = setTimeout(() => setShowEffects(true), 100);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
   const { scrollYProgress } = useScroll({
