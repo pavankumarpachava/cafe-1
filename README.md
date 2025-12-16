@@ -22,7 +22,7 @@ This project demonstrates **modern SaaS architecture**, **component-driven devel
 
 ---
 
-## 🧠 Key Features (Recruiter-Focused)
+## 🧠 Key Features 
 
 - Component-driven UI architecture  
 - Type-safe codebase with TypeScript  
